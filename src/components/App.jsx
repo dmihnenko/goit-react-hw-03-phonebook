@@ -5,14 +5,28 @@ import FriendList from './list/List';
 import SearchBar from './Finder/Finder';
 import { Container } from './form/Form.styled';
 
+const LOCAL_ID = 'contacts';
+
 export class App extends Component {
-  LOCAL_ID = 'contacts';
-
-
   state = {
     contacts: [],
     filter: '',
   };
+
+  componentDidMount() {
+    const contacts = localStorage.getItem('contacts');
+    const parsedContacts = JSON.parse(contacts);
+
+    if (parsedContacts) {
+      this.setState({ contacts: parsedContacts });
+    }
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (prevState.contacts !== this.state.contacts) {
+      localStorage.setItem(LOCAL_ID, JSON.stringify(this.state.contacts));
+    }
+  }
 
   onSubmit = newContact => {
     const duplicated = this.state.contacts.some(
@@ -51,21 +65,6 @@ export class App extends Component {
     );
   };
 
-
-  componentDidMount() {
-    localStorage.getItem(this.LOCAL_ID) &&
-      this.setState({
-        contacts: JSON.parse(localStorage.getItem(this.LOCAL_ID)),
-      });
-    console.log(
-      'localStorage.getItem(this.LOCAL_ID):',
-      JSON.parse(localStorage.getItem(this.LOCAL_ID))
-    );
-  }
-
-
-
-
   render() {
     return (
       <>
@@ -80,7 +79,6 @@ export class App extends Component {
           <FriendList
             friends={this.handleFilter()}
             deleteContactById={this.deleteContactById}
-            storageId={this.LOCAL_ID}
           />
         </Container>
       </>
